@@ -13,6 +13,14 @@ impl Content {
         Content { url: url.to_string(), content: String::new()}
     }
 
+    pub fn set_url(&mut self, url: &str) {
+        self.url = url.to_string();
+    }
+
+    pub fn get_url(&self) -> &String {
+        return &self.url;
+    }
+
     pub fn set_content(&mut self, content: String) {
         self.content = content;
     }
@@ -26,7 +34,7 @@ impl Content {
         Ok(html)
     }
 
-    pub fn products(&self) -> Vec<Product>{
+    pub fn products(&self, main_url: &str) -> Vec<Product>{
         let mut products = Vec::new();
         let doc =  Html::parse_document(self.get_content());
 
@@ -49,7 +57,7 @@ impl Content {
                     .next()
                     .and_then(|e| e.select(&anchor_selector).next()) 
                     .and_then(|a| a.value().attr("href"))          
-                    .map(|s| format!("{}{}",&self.url, s))                   
+                    .map(|s| format!("{}{}", main_url, s))                   
                     .unwrap_or_else(|| "Žiadny link".into());
 
             let price = element.select(&price_selector)

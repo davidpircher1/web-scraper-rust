@@ -8,21 +8,37 @@ use std::io::BufWriter;
 
 #[tokio::main]
 async fn main() {
-   let mut my_web = Content::new("https://auto.bazos.sk");
+   let main_url = "https://auto.bazos.sk";
+   let mut page = 0;
+   let mut my_web = Content::new(&main_url);
    let file = File::create("products.json").expect("Nepodarilo sa vytvoriť súbor");
-    let writer = BufWriter::new(file);
+   let writer = BufWriter::new(file);
+   let mut all_products = Vec::new();
 
-   let html = my_web.download().await;
 
-    match html {
-        Ok(_text) => my_web.set_content(_text), 
-        
-        Err(e) => println!("Chyba: {}", e), 
+    loop{
+        let html = my_web.download().await;
+
+        match html {
+            Ok(_text) => my_web.set_content(_text), 
+            
+            Err(e) => println!("Chyba: {}", e), 
+        }
+
+        let products_to_write = my_web.products(&main_url);
+
+        if page == 1000{
+            break;
+        }
+
+        all_products.extend(products_to_write);
+
+        page += 20;
+
+        my_web.set_url(&format!("{}/{}/", main_url, page));
+
+        println!("{}", my_web.get_url());
     }
 
-    serde_json::to_writer_pretty(writer, &my_web.products()).expect("Zápis zlyhal");
-
-
-
-
+    serde_json::to_writer_pretty(writer, &all_products).expect("Zápis zlyhal");
 }
