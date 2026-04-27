@@ -51,19 +51,19 @@ impl Content {
             let name = element.select(&name_selector)
                 .next()
                 .map(|e|e.text().collect::<String>().trim().to_string())
-                .unwrap_or_else(|| "Neznámy názov".into());
+                .unwrap_or_else(|| "no name".into());
 
             let link = element.select(&name_selector)
                     .next()
                     .and_then(|e| e.select(&anchor_selector).next()) 
                     .and_then(|a| a.value().attr("href"))          
                     .map(|s| format!("{}{}", main_url, s))                   
-                    .unwrap_or_else(|| "Žiadny link".into());
+                    .unwrap_or_else(|| "no link".into());
 
             let price = element.select(&price_selector)
                 .next()
                 .map(|e|e.text().collect::<String>().trim().to_string())
-                .unwrap_or_else(|| "Neznáma cena".into());
+                .unwrap_or_else(|| "no price".into());
 
             let product = Product::new(name, price, link);
             products.push(product);
@@ -71,3 +71,4 @@ impl Content {
         products
     }
 }
+    
